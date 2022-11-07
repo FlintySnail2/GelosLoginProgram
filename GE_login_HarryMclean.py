@@ -5,14 +5,12 @@
 # CREATED 29-10-2022
 # LAST UPDATE: 29-10-2022
 # *****************************
-
-# imported libraries
-
-from datetime import datetime, date
-import time
 import csv
 import random
 import string
+import time
+# imported libraries
+from datetime import datetime, date
 
 # GLOBAL VARIABLES
 
@@ -48,23 +46,36 @@ def convertdt():
 
 
 def resetPassword():
-    choice = input('Would you like to reset your password? Y or N: ')
-    if (choice.lower() == "y"):
-        newPass = input("Would you like to generate a new password? Y or N: ")
-        if (newPass.lower() == 'y'):
-            lCase = string.ascii_lowercase
-            uCase = string.ascii_uppercase
-            num = string.digits
-            alNum = string.punctuation
+    usr = input(
+        "Please enter the user you would like to reset the password for: ")
+    newPass = input("Would you like to generate a new password? Y or N: ")
+    if (newPass.lower() == 'y'):
+        lCase = string.ascii_lowercase
+        uCase = string.ascii_uppercase
+        num = string.digits
+        alNum = string.punctuation
 
-            all = lCase + uCase + num + alNum
-            temp = random.sample(all, 8)
-            newPass = "".join(temp)
+        all = lCase + uCase + num + alNum
+        temp = random.sample(all, 8)
+        newPass = "".join(temp)
 
-            f = open('accounts.txt', 'a+')
-            f.write
+        # RESET PASSWORD CODEBLOCK
+        lst = []
+        with open("accounts.txt", 'r') as f:
+            reader = csv.reader(f)
+            for row in reader:
+                for field in row:
+                    if field == usr:
+                        lst.append(row)
+                        lst[0][1] = newPass
+                        print(lst[0][1])
+            with open('accounts.txt', 'r+') as f:
+                Writer = csv.writer(f)
+                Writer.writerows(lst)
 
-    elif (choice.lower() == 'n'):
+                print("Password Has Been Reset")
+
+    elif (newPass.lower() == 'n'):
         print(
             "Please enter a password that meets GELOS standards\n")
         newPass = input("Password: ")
@@ -84,6 +95,20 @@ def resetPassword():
             for char in newPass:
                 if (char.isalnum() == True):
                     break
+
+            lst = []
+            with open("accounts.txt", 'r') as f:
+                reader = csv.reader(f)
+                for row in reader:
+                    for field in row:
+                        if field == usr:
+                            lst.append(row)
+                            lst[0][1] = newPass
+                            print(lst[0][1])
+                with open('accounts.txt', 'r+') as f:
+                    Writer = csv.writer(f)
+                    Writer.writerows(lst)
+                    print("Password Has Been Reset")
         else:
             print(
                 "Password does not meet GELOS Standards")
@@ -104,37 +129,72 @@ def options():
                         userName = input("Please Enter Username: ")
                         passW = input("Please Enter Password: ")
 
-                        for line in open('accounts.txt', 'r').readlines():
-                            userLogin = line.split(', ')
-                            if (userName == userLogin[0] and passW == userLogin[1]):
-                                if (userLogin[4] - datetime.now() < 100):
-                                    print('Login Successful')
-                                    attempts = 3
-                                    break
+                        with open('accounts.txt', 'r') as f:
+                            reader = csv.reader(f)
+                            for row in reader:
+                                usr = row[0]
+                                passw = row[1]
+                                resetDate = row[4]
+                               # days = []
+                                actualDate = datetime.today()
+                                for date in resetDate:
+                                    dateObj = datetime.strptime(
+                                        date, '%Y-%m-%d').date()
+                                    daysLeft = (actualDate - dateObj).days
+                                    print(daysLeft)
 
-                                elif (userLogin[4] - datetime.now() >= 100 and userLogin[4] - datetime.now() < 120):
-                                    print(
-                                        f'You have { userLogin[4] - datetime.now()}')
+                                # daysLeft = convertRDate - datetime.now()
 
-                            else:
-                                if (attempts < 3):
-                                    print("Credentials Incorrect")
-                                    attempts += 1
-                                    print(attempts)
-                                    break
+                                print(usr)
+                                print(passw)
+                                print(resetDate)
 
-                                elif (attempts > 3):
+                                if usr == userName and passw == passW:
+                                    if resetDate - datetime() < 100:
+                                        print('Success ' +
+                                              userName + ' Have Logged in')
 
-                                    break
-                                break
-                else:
-                    choice = input(
-                        "Three incorrect attempts have been made would you like to reset password Y or N? ")
-                    if (choice == 'y'):
-                        resetPassword()
-                    elif (choice == 'n'):
-                        print('quit')
-                        exit()
+                                    elif daysLeft > 100 and daysLeft < 120:
+                                        print('Success ' +
+                                              userName + ' Has Logged in and has ' + daysLeft + 'to reset pw')
+                                    elif daysLeft > 120:
+                                        print(
+                                            'Password has expired, navigating to reset password')
+
+                                else:
+                                    print('No Good')
+
+                        #         print('Login Successful')
+                        #         attempts = 3
+                        #         break
+
+                        #     # elif (userLogin[4] - datetime.now() >= 100 and userLogin[4] - datetime.now() < 120):
+                        #     #     print(
+                        #     #         f'You have { userLogin[4] - datetime.now()} to reset')
+                        #     # elif (userLogin[4] - datetime.now() >= 120):
+                        #     #     print(
+                        #     #         'Password has expired you will be taken to the reset password screen')
+                        #     #     resetPassword()
+
+                        # else:
+                        #     if (attempts < 3):
+                        #         print("Credentials Incorrect")
+                        #         attempts += 1
+                        #         print(attempts)
+                        #         break
+
+                        #     elif (attempts > 3):
+
+                        #         break
+                        #     break
+                    else:
+                        choice = input(
+                            "Three incorrect attempts have been made would you like to reset password Y or N? ")
+                        if (choice == 'y'):
+                            resetPassword()
+                        elif (choice == 'n'):
+                            print('quit')
+                            exit()
 
         case "2":
             while True:
@@ -201,8 +261,8 @@ def options():
                                     "Please enter a valid email\n")
                                 newEmail = input("Email: ")
                                 staticDt = datetime.today()
-                                passwCreate = staticDt.strftime('%Y/%m/%d')
-                                lastLogin = staticDt.strftime('%Y/%m/%d')
+                                passwCreate = staticDt.strftime('%Y-%m-%d')
+                                lastLogin = staticDt.strftime('%Y-%m-%d')
                                 loginMsg = ' '
 
                                 print(newEmail)
@@ -214,8 +274,8 @@ def options():
                                         "User account registered\nprogram will now close")
                                     print(newUsr, newPass, newEmail)
                                     f = open('accounts.txt', 'a+')
-                                    f.write('\n' + str(newUsr) + ', ' +
-                                            str(newPass) + ', ' + str(newEmail) + ', ' + str(loginMsg) + ', ' + str(lastLogin) + ', ' + str(passwCreate))
+                                    f.write('\n' + str(newUsr) +
+                                            str(newPass) + str(newEmail) + str(loginMsg) + str(lastLogin) + str(passwCreate))
                                     f.close
 
                                     time.sleep(2)
