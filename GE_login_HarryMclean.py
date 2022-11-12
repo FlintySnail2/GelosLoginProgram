@@ -134,11 +134,14 @@ def options():
                             for row in reader:
                                 usr = row[0]
                                 passw = row[1]
-                                resetDate = row[4]
-                               # days = []
+                                resetDate = row[5]
                                 actualDate = datetime.today()
+
+                                print(resetDate)
+                                print(actualDate)
+
                                 for date in resetDate:
-                                    dateObj = datetime.strptime(
+                                    dateObj = datetime.strftime(
                                         date, '%Y-%m-%d').date()
                                     daysLeft = (actualDate - dateObj).days
                                     print(daysLeft)
